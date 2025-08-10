@@ -1,5 +1,5 @@
 // DuckDB-WASM singleton with CDN bundles
-import duckdb from "@duckdb/duckdb-wasm";
+import * as duckdb from "@duckdb/duckdb-wasm";
 
 let dbPromise: Promise<duckdb.AsyncDuckDB> | null = null;
 
