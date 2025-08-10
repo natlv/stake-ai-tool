@@ -1,4 +1,5 @@
 import type { Extracted } from "@/types/extracted";
+import { loadTechIndicatorsForTicker } from "@/services/features";
 
 function delay(ms: number) {
   return new Promise((res) => setTimeout(res, ms));
@@ -9,7 +10,7 @@ function mockExtracted(): Extracted {
     documentType: "10-K",
     stockName: "JP Morgan",
     highlights: [
-      "Record revenue growth",
+      "Increasing dividend payout",
       "Healthy cash position",
       "Operational efficiency gains",
     ],
@@ -47,9 +48,17 @@ function mockExtracted(): Extracted {
 }
 
 export async function analyzePdf(file: File): Promise<Extracted> {
-  // In Next.js, you'd POST FormData to /api/analyze. Here we mock it.
-  // const fd = new FormData();
-  // fd.append("file", file);
-  await delay(1500);
-  return mockExtracted();
+  // In production, post to Stage 2 inference; here we enrich with Parquet if available.
+  await delay(800);
+  const base = mockExtracted();
+  try {
+    const tech = await loadTechIndicatorsForTicker("JPM");
+    if (tech) {
+      base.techIndicators = {
+        ...base.techIndicators,
+        ...tech,
+      };
+    }
+  } catch {}
+  return base;
 }
