@@ -34,7 +34,7 @@ const Results: React.FC = () => {
     s: Extracted["marketSentimentCategory"]
   ): "brand-green" | "warning" | "destructive" => {
     if (s === "Neutral") return "warning";
-    if (s.includes("Bearish")) return "brand-green";
+    if (s.includes("Bullish")) return "brand-green";
     return "destructive";
   };
   const pillClassesForToken = (token: "brand-green" | "warning" | "destructive") =>

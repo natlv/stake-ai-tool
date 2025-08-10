@@ -26,7 +26,7 @@ const Index = () => {
     setIsAnalyzing(true);
     try {
       const result = await analyzePdf(selectedFile);
-      toast({ title: "Analysis complete", description: "Dummy payload received." });
+      toast({ title: "Analysis complete", description: "Now showing results." });
       navigate("/results", { state: { result } });
     } catch (e) {
       toast({ title: "Analysis failed", description: "Please try again.", variant: "destructive" });
@@ -38,35 +38,50 @@ const Index = () => {
   return (
     <main>
       <section className="container mx-auto min-h-screen px-6 py-16">
-        <header className="mx-auto mb-12 max-w-3xl text-center">
-          <h1 className="mb-3 text-4xl font-bold tracking-tight">Upload Financial Docs for Investment Strategy</h1>
-          <p className="text-muted-foreground">Choose a strategy and upload your PDFs. We only accept .pdf files.</p>
-        </header>
+        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-[260px_1fr]">
+          <aside className="flex justify-center md:justify-start">
+            <img
+              src="/lovable-uploads/9526ce6b-2f6a-46a1-beac-f8f0aa9814b5.png"
+              alt="Stake.ai logo"
+              className="h-28 w-28 select-none object-contain md:h-40 md:w-40"
+              loading="lazy"
+            />
+          </aside>
 
-        <div className="mx-auto mb-10 max-w-3xl">
-          <StrategySelect />
-        </div>
+          <div>
+            <header className="mb-10 text-center md:text-left">
+              <h1 className="mb-3 whitespace-nowrap text-3xl font-bold tracking-tight md:text-4xl">
+                Upload Financial Docs for Investment Strategy
+              </h1>
+              <p className="text-muted-foreground">Choose a strategy and upload your PDFs. We only accept .pdf files.</p>
+            </header>
 
-        <div className="mx-auto max-w-3xl">
-          <FileUploadCard isAnalyzing={isAnalyzing} onFileChange={handleFileChange} />
-        </div>
+            <div className="mb-6 max-w-sm">
+              <StrategySelect />
+            </div>
 
-        <div className="mx-auto mt-6 max-w-3xl flex justify-center">
-          <Button
-            size="lg"
-            variant="hero"
-            onClick={handleAnalyze}
-            disabled={!isValid || !selectedFile || isAnalyzing}
-            aria-disabled={!isValid || !selectedFile || isAnalyzing}
-          >
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="animate-spin" /> Analyzing...
-              </>
-            ) : (
-              <>Analyze</>
-            )}
-          </Button>
+            <div className="max-w-3xl">
+              <FileUploadCard isAnalyzing={isAnalyzing} onFileChange={handleFileChange} />
+            </div>
+
+            <div className="mt-6 flex justify-start">
+              <Button
+                size="lg"
+                variant="hero"
+                onClick={handleAnalyze}
+                disabled={!isValid || !selectedFile || isAnalyzing}
+                aria-disabled={!isValid || !selectedFile || isAnalyzing}
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="animate-spin" /> Analyzing...
+                  </>
+                ) : (
+                  <>Analyze</>
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
     </main>
