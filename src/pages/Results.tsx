@@ -1,11 +1,12 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { Extracted } from "@/types/extracted";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import Sparkline from "@/components/Sparkline";
 import { Button } from "@/components/ui/button";
+import Sparkline from "@/components/Sparkline";
+import BadgeDecision from "@/components/BadgeDecision";
+import GradePill from "@/components/GradePill";
+import FieldRow from "@/components/FieldRow";
 
 function formatNumber(n: number | null | undefined, opts?: Intl.NumberFormatOptions) {
   if (n === null || n === undefined || Number.isNaN(n)) return "Not present in document";
@@ -24,9 +25,7 @@ const Results: React.FC = () => {
   const result: Extracted | undefined = state?.result;
 
   React.useEffect(() => {
-    document.title = result?.stockName
-      ? `${result.stockName} Analysis — Results`
-      : "Document Analysis Results";
+    document.title = result?.stockName ? `${result.stockName} Analysis — Results` : "Document Analysis Results";
   }, [result?.stockName]);
 
   if (!result) {
@@ -41,8 +40,6 @@ const Results: React.FC = () => {
     );
   }
 
-  const decisionVariant = result.decision === "BUY" ? "default" : "destructive" as const;
-
   return (
     <main>
       <section className="container mx-auto px-6 py-10">
@@ -51,42 +48,42 @@ const Results: React.FC = () => {
           <p className="text-muted-foreground">Document type and detected stock name are shown below with overall decision.</p>
         </header>
 
+        {result.looksImageHeavy && (
+          <div className="mx-auto mb-6 max-w-5xl rounded-xl border bg-secondary/40 px-4 py-3 text-sm text-muted-foreground ring-1 ring-inset ring-border">
+            {result.imageHeavyNote || "This file appears image-heavy. OCR is disabled in this demo."}
+          </div>
+        )}
+
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
-          <Card className="md:col-span-2">
+          <Card className="md:col-span-2 rounded-2xl transition hover:shadow-lg hover:shadow-[var(--shadow-glow)]">
             <CardHeader>
               <CardTitle>Summary</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-sm text-muted-foreground">Document Type</p>
-                  <p className="text-lg font-medium">{result.documentType ?? "Not present in document"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Detected Stock</p>
-                  <p className="text-lg font-medium">{result.stockName ?? "Not present in document"}</p>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <FieldRow label="Document Type" value={result.documentType ?? null} />
+                <FieldRow label="Detected Stock" value={result.stockName ?? null} />
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground">Decision</span>
+                  <BadgeDecision value={result.decision} />
                 </div>
                 <div className="flex items-center gap-3">
-                  <p className="text-sm text-muted-foreground">Decision</p>
-                  <Badge variant={decisionVariant} className="text-base px-3 py-1">
-                    {result.decision}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-3">
-                  <p className="text-sm text-muted-foreground">Confidence Grade</p>
-                  <Badge variant="secondary" className="text-base px-3 py-1">{result.confidenceGrade}</Badge>
+                  <span className="text-sm text-muted-foreground">Confidence Grade</span>
+                  <GradePill grade={result.confidenceGrade as any} />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-2xl transition hover:shadow-lg hover:shadow-[var(--shadow-glow)]">
             <CardHeader>
               <CardTitle>Cool highlights</CardTitle>
             </CardHeader>
             <CardContent>
               {result.highlights?.length ? (
-                <ul className="list-disc pl-5 space-y-2">
+                <ul className="list-disc space-y-2 pl-5">
                   {result.highlights.map((h, i) => (
                     <li key={i} className="text-sm text-muted-foreground">{h}</li>
                   ))}
@@ -99,127 +96,117 @@ const Results: React.FC = () => {
         </div>
 
         <div className="mx-auto mt-6 grid max-w-5xl grid-cols-1 gap-6">
-          <Card>
+          <Card className="rounded-2xl transition hover:shadow-lg hover:shadow-[var(--shadow-glow)]">
             <CardHeader>
               <CardTitle>Ratios</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Metric</TableHead>
-                    <TableHead>Value</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Gross Profit Margin</TableCell>
-                    <TableCell>{formatPercent(result.ratios.grossProfitMargin ?? null)}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Net Profit Margin</TableCell>
-                    <TableCell>{formatPercent(result.ratios.netProfitMargin ?? null)}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Operating Profit Margin</TableCell>
-                    <TableCell>{formatPercent(result.ratios.operatingProfitMargin ?? null)}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>P/E Ratio</TableCell>
-                    <TableCell>{formatNumber(result.ratios.peRatio, { maximumFractionDigits: 2 })}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Debt to Equity</TableCell>
-                    <TableCell>{formatNumber(result.ratios.debtToEquity, { maximumFractionDigits: 2 })}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Free Cash Flow Ratio</TableCell>
-                    <TableCell>{formatNumber(result.ratios.freeCashFlowRatio, { maximumFractionDigits: 3 })}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Operating Cash Flow</TableCell>
-                    <TableCell>{formatNumber(result.ratios.operatingCashFlow, { notation: "compact", maximumFractionDigits: 2 })}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+            <CardContent className="space-y-2">
+              <FieldRow label="Gross Profit Margin" value={result.ratios.grossProfitMargin != null ? formatPercent(result.ratios.grossProfitMargin) : null} />
+              <FieldRow label="Net Profit Margin" value={result.ratios.netProfitMargin != null ? formatPercent(result.ratios.netProfitMargin) : null} />
+              <FieldRow label="Operating Profit Margin" value={result.ratios.operatingProfitMargin != null ? formatPercent(result.ratios.operatingProfitMargin) : null} />
+              <FieldRow label="P/E Ratio" value={result.ratios.peRatio != null ? formatNumber(result.ratios.peRatio, { maximumFractionDigits: 2 }) : null} />
+              <FieldRow label="Debt to Equity" value={result.ratios.debtToEquity != null ? formatNumber(result.ratios.debtToEquity, { maximumFractionDigits: 2 }) : null} />
+              <FieldRow label="Free Cash Flow Ratio" value={result.ratios.freeCashFlowRatio != null ? formatNumber(result.ratios.freeCashFlowRatio, { maximumFractionDigits: 3 }) : null} />
+              <FieldRow label="Operating Cash Flow" value={result.ratios.operatingCashFlow != null ? formatNumber(result.ratios.operatingCashFlow, { notation: "compact", maximumFractionDigits: 2 }) : null} />
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-2xl transition hover:shadow-lg hover:shadow-[var(--shadow-glow)]">
             <CardHeader>
-              <CardTitle>Tech Indicators</CardTitle>
+              <CardTitle>Technical</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
                 <div>
                   <p className="mb-2 text-sm text-muted-foreground">SMA 50</p>
-                  <Sparkline data={result.techIndicators.sma50 ?? null} className="text-brand-cyan" />
+                  {result.techIndicators.sma50 && result.techIndicators.sma50.length >= 2 ? (
+                    <Sparkline data={result.techIndicators.sma50} height={28} className="text-[hsl(var(--brand-cyan))]" />
+                  ) : result.techIndicators.sma50 && result.techIndicators.sma50.length === 1 ? (
+                    <span className="text-sm">{formatNumber(result.techIndicators.sma50[0], { maximumFractionDigits: 2 })}</span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Not present in document</span>
+                  )}
                 </div>
                 <div>
                   <p className="mb-2 text-sm text-muted-foreground">SMA 200</p>
-                  <Sparkline data={result.techIndicators.sma200 ?? null} className="text-brand-teal" />
+                  {result.techIndicators.sma200 && result.techIndicators.sma200.length >= 2 ? (
+                    <Sparkline data={result.techIndicators.sma200} height={28} className="text-[hsl(var(--brand-teal))]" />
+                  ) : result.techIndicators.sma200 && result.techIndicators.sma200.length === 1 ? (
+                    <span className="text-sm">{formatNumber(result.techIndicators.sma200[0], { maximumFractionDigits: 2 })}</span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Not present in document</span>
+                  )}
                 </div>
                 <div>
                   <p className="mb-2 text-sm text-muted-foreground">MACD</p>
-                  <Sparkline data={result.techIndicators.macd ?? null} className="text-brand-green" />
+                  {result.techIndicators.macd && result.techIndicators.macd.length >= 2 ? (
+                    <Sparkline data={result.techIndicators.macd} height={28} className="text-[hsl(var(--brand-green))]" />
+                  ) : result.techIndicators.macd && result.techIndicators.macd.length === 1 ? (
+                    <span className="text-sm">{formatNumber(result.techIndicators.macd[0], { maximumFractionDigits: 2 })}</span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Not present in document</span>
+                  )}
                 </div>
                 <div>
                   <p className="mb-2 text-sm text-muted-foreground">RSI</p>
-                  <Sparkline data={result.techIndicators.rsi ?? null} className="text-primary" />
+                  {result.techIndicators.rsi && result.techIndicators.rsi.length >= 2 ? (
+                    <Sparkline data={result.techIndicators.rsi} height={28} className="text-primary" />
+                  ) : result.techIndicators.rsi && result.techIndicators.rsi.length === 1 ? (
+                    <span className="text-sm">{formatNumber(result.techIndicators.rsi[0], { maximumFractionDigits: 2 })}</span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Not present in document</span>
+                  )}
                 </div>
                 <div>
                   <p className="mb-2 text-sm text-muted-foreground">VIX</p>
-                  <Sparkline data={result.techIndicators.vix ?? null} className="text-destructive" />
+                  {result.techIndicators.vix && result.techIndicators.vix.length >= 2 ? (
+                    <Sparkline data={result.techIndicators.vix} height={28} className="text-destructive" />
+                  ) : result.techIndicators.vix && result.techIndicators.vix.length === 1 ? (
+                    <span className="text-sm">{formatNumber(result.techIndicators.vix[0], { maximumFractionDigits: 2 })}</span>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Not present in document</span>
+                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-2xl transition hover:shadow-lg hover:shadow-[var(--shadow-glow)]">
             <CardHeader>
               <CardTitle>Macro</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>GDP</TableCell>
-                    <TableCell>{formatNumber(result.macro.gdp, { maximumFractionDigits: 2 })}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Interest Rates</TableCell>
-                    <TableCell>{formatNumber(result.macro.interestRates, { maximumFractionDigits: 2 })}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>CPI</TableCell>
-                    <TableCell>{formatNumber(result.macro.cpi, { maximumFractionDigits: 2 })}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+            <CardContent className="space-y-2">
+              <FieldRow label="GDP" value={result.macro.gdp != null ? formatNumber(result.macro.gdp, { maximumFractionDigits: 2 }) : null} />
+              <FieldRow label="Interest Rates" value={result.macro.interestRates != null ? formatNumber(result.macro.interestRates, { maximumFractionDigits: 2 }) : null} />
+              <FieldRow label="CPI" value={result.macro.cpi != null ? formatNumber(result.macro.cpi, { maximumFractionDigits: 2 }) : null} />
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-2xl transition hover:shadow-lg hover:shadow-[var(--shadow-glow)]">
             <CardHeader>
               <CardTitle>Industry</CardTitle>
             </CardHeader>
+            <CardContent className="space-y-2">
+              <FieldRow label="GICS" value={result.industry.gics ?? null} />
+              <FieldRow label="Sector" value={result.industry.sector ?? null} />
+              <FieldRow label="Embedding" value={result.industry.embedding?.length ? `${result.industry.embedding.length} dims` : null} />
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl transition hover:shadow-lg hover:shadow-[var(--shadow-glow)]">
+            <CardHeader>
+              <CardTitle>Anomalies</CardTitle>
+            </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-sm text-muted-foreground">GICS</p>
-                  <p className="font-medium">{result.industry.gics ?? "Not present in document"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Sector</p>
-                  <p className="font-medium">{result.industry.sector ?? "Not present in document"}</p>
-                </div>
-                <div className="sm:col-span-2">
-                  <p className="text-sm text-muted-foreground">Embedding</p>
-                  <p className="font-medium">
-                    {result.industry.embedding?.length ? `${result.industry.embedding.length} dims` : "Not present in document"}
-                  </p>
-                </div>
-              </div>
+              {result.anomalies && result.anomalies.length > 0 ? (
+                <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+                  {result.anomalies.map((a, i) => (
+                    <li key={i}>{a}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">Not present in document</p>
+              )}
             </CardContent>
           </Card>
         </div>

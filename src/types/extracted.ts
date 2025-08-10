@@ -49,4 +49,6 @@ export type Extracted = {
   anomalies: string[]; // potential risks
   decision: "BUY" | "SELL";
   confidenceGrade: "A" | "A-" | "B+" | "B" | "B-" | "C+" | "C" | "D";
+  looksImageHeavy?: boolean;
+  imageHeavyNote?: string | null;
 };
