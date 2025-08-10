@@ -26,7 +26,7 @@ const Index = () => {
     setIsAnalyzing(true);
     try {
       const result = await analyzePdf(selectedFile);
-      toast({ title: "Analysis complete", description: "Dummy payload received." });
+      toast({ title: "Analysis complete", description: "Now showing results." });
       navigate("/results", { state: { result } });
     } catch (e) {
       toast({ title: "Analysis failed", description: "Please try again.", variant: "destructive" });
