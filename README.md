@@ -1,73 +1,186 @@
-# Welcome to your Lovable project
+Stake.ai
+Turn financial documents into actionable signals. Upload a PDF, pick a strategy, and get a transparent BUY or SELL with a letter grade, plus highlights, ratios, sentiment, and risk flags.
 
-## Project info
+What this app does
+Document intake: Upload earnings reports, 10-Q/10-K, press releases, or investor letters. Text-only parsing, no OCR.
 
-**URL**: https://lovable.dev/projects/cc99a577-c6bb-46ff-ac45-6cc952dc55a3
+Smart extraction: Classifies document type and ticker if present. Detects key fields like revenue, margins, leverage, cash flows. Fields that are missing show as “Not present.”
 
-## How can I edit this code?
+Insights: Highlights notable sentences, tags risk phrases, and computes finance-focused sentiment.
 
-There are several ways of editing your application.
+Anomaly checks: Compares extracted values against a FinanceBench-style baseline to flag large deviations.
 
-**Use Lovable**
+Decision engine: Combines sentiment, anomaly count, P/E availability, and leverage into a deterministic BUY or SELL with A–D confidence.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cc99a577-c6bb-46ff-ac45-6cc952dc55a3) and start prompting.
+Signals (optional Stage 2): Computes SMA 50/200, MACD, RSI, moving averages, and basic OHLCV stats when you provide market data.
 
-Changes made via Lovable will be committed automatically to this repo.
+Clear UI: Next.js 14 + TypeScript + Tailwind. Fields render only when present.
 
-**Use your preferred IDE**
+Not financial advice. For research and demo use.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Why it stands out
+Document-grounded first: Decisions trace back to facts found in the file.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Transparent logic: Simple rules you can audit, not a black box.
 
-Follow these steps:
+Graceful nulls: The UI shows “Not present” instead of guessing.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Modular: Plug in new extractors or signals without changing the UI contract.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Architecture
+Frontend: Next.js 14, TypeScript, Tailwind, shadcn/ui.
 
-# Step 3: Install the necessary dependencies.
-npm i
+Server: Next.js API routes for parsing and scoring.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Parsers: Text-only PDF parsing with finance-tuned heuristics.
 
-**Edit a file directly in GitHub**
+Anomaly store: Lightweight baseline cache for common ratios.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Decision engine: Rule set that takes sentiment, anomalies, leverage, and P/E to produce a badge and grade.
 
-**Use GitHub Codespaces**
+Model wiring: Extractor, sentiment, anomaly checker, and decision engine communicate through one JSON schema. Adapters keep interfaces stable.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Model buckets by stock type
+Large caps, ETFs, and high beta names behave differently. Stage 2 supports per-bucket calibration and routing:
 
-## What technologies are used for this project?
+Shared features
 
-This project is built with:
+Separate calibration for each bucket
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Simple registry that maps tickers to a bucket, with fallbacks
 
-## How can I deploy this project?
+Getting started
+Prerequisites
+Node 18+
 
-Simply open [Lovable](https://lovable.dev/projects/cc99a577-c6bb-46ff-ac45-6cc952dc55a3) and click on Share -> Publish.
+pnpm or npm
 
-## Can I connect a custom domain to my Lovable project?
+Optional: an LLM key if you enable any LLM-backed features
 
-Yes, you can!
+Install
+bash
+Copy
+Edit
+# clone
+git clone <your-repo-url>
+cd <your-repo-folder>
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# install
+pnpm install
+# or: npm install
+Run dev
+bash
+Copy
+Edit
+pnpm dev
+# or: npm run dev
+App runs on http://localhost:3000
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Build and start
+bash
+Copy
+Edit
+pnpm build && pnpm start
+# or: npm run build && npm start
+Environment variables
+Create .env.local and set what you need:
+
+ini
+Copy
+Edit
+# Optional if using any LLM helpers
+OPENAI_API_KEY=sk-...
+# PDF size limits and upload dir
+MAX_UPLOAD_MB=25
+UPLOAD_DIR=.uploads
+# Toggle stage 2 signals when you have OHLCV
+ENABLE_STAGE2=true
+Usage
+Open the app and upload a PDF.
+
+Choose an investment strategy profile.
+
+Review the output panel: document type, ticker, highlights, ratios, sentiment, risk flags, anomalies, and BUY or SELL with confidence.
+
+If Stage 2 is enabled and you have market data, open the Signals tab to view SMA 50/200, MACD, RSI, and basic trend filters.
+
+Data flow
+Parse → extract text from PDF.
+
+Detect → classify doc type and ticker.
+
+Extract → pull numeric fields and key phrases.
+
+Score → compute sentiment and anomaly flags.
+
+Decide → deterministic engine returns BUY or SELL with grade.
+
+Render → UI only shows fields that exist.
+
+API snapshot
+POST /api/parse
+Body: { file }
+Returns: { text, metadata }
+
+POST /api/extract
+Body: { text }
+Returns: { fields, missing }
+
+POST /api/score
+Body: { fields }
+Returns: { sentiment, anomalies }
+
+POST /api/decide
+Body: { sentiment, anomalies, fields }
+Returns: { decision: "BUY" | "SELL", grade: "A" | "B" | "C" | "D" }
+
+POST /api/signals (optional Stage 2)
+Body: { ohlcv }
+Returns: { sma50, sma200, macd, rsi, crossovers }
+
+Development notes
+This codebase was bootstrapped with Lovable. It worked well once we changed our approach:
+
+A single mega prompt caused a 15 minute stall.
+
+Splitting work into small prompts per page or feature improved speed and quality.
+
+Keep a short design spec in the repo and feed that into each prompt to stay consistent.
+
+Troubleshooting
+Mic or screen permissions on macOS: System Settings → Privacy & Security → allow Screen Recording or Microphone for your browser if you test any capture features.
+
+PDF has images only: The parser is text-only. Use a text-based PDF or run OCR before upload.
+
+Signals are empty: Enable Stage 2 and provide OHLCV data.
+
+Roadmap
+OCR fallback for image-only PDFs
+
+Better anomaly baselines per sector and regime
+
+Strategy backtests with walk-forward splits
+
+Export to PDF and shareable links
+
+Pluggable LLM summaries with strict grounding
+
+Contributing
+PRs and issues are welcome. Please keep changes small and focused.
+
+License
+MIT
+
+Acknowledgments
+Lovable for rapid UI scaffolding
+
+Mentors and organising team of MIT Global AI Hackathon 2025
+
+
+
+
+
+
+
+
+Ask ChatGPT
