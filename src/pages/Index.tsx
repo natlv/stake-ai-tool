@@ -1,13 +1,24 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import StrategySelect from "@/components/StrategySelect";
+import FileUploadCard from "@/components/FileUploadCard";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <main>
+      <section className="container mx-auto min-h-screen px-6 py-16">
+        <header className="mx-auto mb-12 max-w-3xl text-center">
+          <h1 className="mb-3 text-4xl font-bold tracking-tight">Upload Financial Documents for Investment Strategy</h1>
+          <p className="text-muted-foreground">Choose a strategy and upload your PDFs. We only accept .pdf files.</p>
+        </header>
+
+        <div className="mx-auto mb-10 max-w-3xl">
+          <StrategySelect />
+        </div>
+
+        <div className="mx-auto max-w-3xl">
+          <FileUploadCard />
+        </div>
+      </section>
+    </main>
   );
 };
 
