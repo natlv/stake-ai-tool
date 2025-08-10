@@ -7,7 +7,7 @@ function delay(ms: number) {
 function mockExtracted(): Extracted {
   return {
     documentType: "10-K",
-    stockName: "ACME Corp",
+    stockName: "JP Morgan",
     highlights: [
       "Record revenue growth",
       "Healthy cash position",
@@ -40,7 +40,7 @@ function mockExtracted(): Extracted {
       sector: "IT",
     },
     marketSentimentCategory: "Bullish",
-    anomalies: ["Elevated inventory levels", "Minor legal dispute disclosed"],
+    anomalies: ["Uncertain economic outlook", "Decreasing YoY revenue"],
     decision: "BUY",
     confidenceGrade: "B+",
   };

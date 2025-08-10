@@ -85,7 +85,7 @@ const Results: React.FC = () => {
                   <span className="text-sm text-muted-foreground">Decision</span>
                   <BadgeDecision value={result.decision} />
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 -ml-2">
                   <span className="text-sm text-muted-foreground">Confidence Grade</span>
                   <GradePill grade={result.confidenceGrade as any} />
                 </div>

@@ -38,22 +38,22 @@ const Index = () => {
   return (
     <main>
       <section className="container mx-auto min-h-screen px-6 py-16">
-          <header className="mb-10 text-center md:text-left">
+          <header className="mb-10 text-center">
             <h1 className="mb-3 whitespace-nowrap text-3xl font-bold tracking-tight md:text-4xl">
               Upload Financial Docs for Investment Strategy
             </h1>
             <p className="text-muted-foreground">Choose a strategy and upload your PDFs. We only accept .pdf files.</p>
           </header>
 
-          <div className="mb-6 max-w-sm">
+          <div className="mb-6 max-w-sm mx-auto">
             <StrategySelect />
           </div>
 
-          <div className="max-w-3xl">
+          <div className="max-w-3xl mx-auto">
             <FileUploadCard isAnalyzing={isAnalyzing} onFileChange={handleFileChange} />
           </div>
 
-          <div className="mt-6 flex justify-start">
+          <div className="mt-6 flex justify-center">
             <Button
               size="lg"
               variant="hero"

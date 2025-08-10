@@ -1,4 +1,4 @@
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const StrategySelect = () => {
   return (
@@ -12,7 +12,7 @@ const StrategySelect = () => {
         </SelectTrigger>
         <SelectContent className="z-50 bg-popover text-popover-foreground">
           <SelectGroup>
-            <SelectLabel>Strategies</SelectLabel>
+            
             <SelectItem value="conservative">Conservative</SelectItem>
             <SelectItem value="balanced">Balanced</SelectItem>
             <SelectItem value="aggressive">Aggressive</SelectItem>
