@@ -28,6 +28,22 @@ const Results: React.FC = () => {
     document.title = result?.stockName ? `${result.stockName} Analysis — Results` : "Document Analysis Results";
   }, [result?.stockName]);
 
+  const pillBase =
+    "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset transition-colors";
+  const toneTokenForSentiment = (
+    s: Extracted["marketSentimentCategory"]
+  ): "brand-green" | "warning" | "destructive" => {
+    if (s === "Neutral") return "warning";
+    if (s.includes("Bearish")) return "brand-green";
+    return "destructive";
+  };
+  const pillClassesForToken = (token: "brand-green" | "warning" | "destructive") =>
+    token === "destructive"
+      ? "bg-[hsl(var(--destructive)_/_0.14)] text-[hsl(var(--destructive))] ring-[hsl(var(--destructive)_/_0.35)] hover:bg-[hsl(var(--destructive)_/_0.22)]"
+      : token === "warning"
+      ? "bg-[hsl(var(--warning)_/_0.14)] text-[hsl(var(--warning))] ring-[hsl(var(--warning)_/_0.35)] hover:bg-[hsl(var(--warning)_/_0.22)]"
+      : "bg-[hsl(var(--brand-green)_/_0.14)] text-[hsl(var(--brand-green))] ring-[hsl(var(--brand-green)_/_0.35)] hover:bg-[hsl(var(--brand-green)_/_0.22)]";
+
   if (!result) {
     return (
       <main>
@@ -64,7 +80,7 @@ const Results: React.FC = () => {
                 <FieldRow label="Document Type" value={result.documentType ?? null} />
                 <FieldRow label="Detected Stock" value={result.stockName ?? null} />
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-muted-foreground">Decision</span>
                   <BadgeDecision value={result.decision} />
@@ -72,6 +88,15 @@ const Results: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-muted-foreground">Confidence Grade</span>
                   <GradePill grade={result.confidenceGrade as any} />
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground">Overall Sentiment</span>
+                  <span
+                    className={`${pillBase} ${pillClassesForToken(toneTokenForSentiment(result.marketSentimentCategory))}`}
+                    aria-label={`Overall sentiment: ${result.marketSentimentCategory}`}
+                  >
+                    {result.marketSentimentCategory}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -96,6 +121,23 @@ const Results: React.FC = () => {
         </div>
 
         <div className="mx-auto mt-6 grid max-w-5xl grid-cols-1 gap-6">
+          <Card className="rounded-2xl transition hover:shadow-lg hover:shadow-[var(--shadow-glow)]">
+            <CardHeader>
+              <CardTitle>Anomalies</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {result.anomalies && result.anomalies.length > 0 ? (
+                <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+                  {result.anomalies.map((a, i) => (
+                    <li key={i}>{a}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">Not present in document</p>
+              )}
+            </CardContent>
+          </Card>
+
           <Card className="rounded-2xl transition hover:shadow-lg hover:shadow-[var(--shadow-glow)]">
             <CardHeader>
               <CardTitle>Ratios</CardTitle>
@@ -190,23 +232,6 @@ const Results: React.FC = () => {
               <FieldRow label="GICS" value={result.industry.gics ?? null} />
               <FieldRow label="Sector" value={result.industry.sector ?? null} />
               <FieldRow label="Embedding" value={result.industry.embedding?.length ? `${result.industry.embedding.length} dims` : null} />
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-2xl transition hover:shadow-lg hover:shadow-[var(--shadow-glow)]">
-            <CardHeader>
-              <CardTitle>Anomalies</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {result.anomalies && result.anomalies.length > 0 ? (
-                <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
-                  {result.anomalies.map((a, i) => (
-                    <li key={i}>{a}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted-foreground">Not present in document</p>
-              )}
             </CardContent>
           </Card>
         </div>

@@ -42,6 +42,7 @@ All colors MUST be HSL.
     --brand-cyan: 189 94% 43%;
     --brand-teal: 170 85% 36%;
     --brand-green: 146 64% 45%;
+    --warning: 45 93% 47%;
 
     /* Gradient + glow tokens */
     --gradient-accent: linear-gradient(135deg, hsl(var(--brand-cyan)), hsl(var(--brand-teal)) 50%, hsl(var(--brand-green)));
