@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Results from "./pages/Results";
+import SiteHeader from "@/components/SiteHeader";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <SiteHeader />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/results" element={<Results />} />
