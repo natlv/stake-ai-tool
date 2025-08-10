@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { analyzePdf } from "@/services/analyze";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [isValid, setIsValid] = React.useState(false);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  const navigate = useNavigate();
 
   const handleFileChange = (
     file: File | null,
@@ -24,9 +26,8 @@ const Index = () => {
     setIsAnalyzing(true);
     try {
       const result = await analyzePdf(selectedFile);
-      console.log("Extracted result:", result);
       toast({ title: "Analysis complete", description: "Dummy payload received." });
-      // TODO: navigate to results page with result
+      navigate("/results", { state: { result } });
     } catch (e) {
       toast({ title: "Analysis failed", description: "Please try again.", variant: "destructive" });
     } finally {
