@@ -4,13 +4,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FileText, UploadCloud, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-const FileUploadCard: React.FC = () => {
+interface FileUploadCardProps {
+  isAnalyzing?: boolean;
+  onFileChange?: (
+    file: File | null,
+    meta: { isValid: boolean; name?: string; size?: number }
+  ) => void;
+}
+const FileUploadCard: React.FC<FileUploadCardProps> = ({ isAnalyzing = false, onFileChange }) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const [fileName, setFileName] = React.useState<string | null>(null);
   const [fileSize, setFileSize] = React.useState<number | null>(null);
   const [isValid, setIsValid] = React.useState(false);
-  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
 
   const onSelectFile = (file: File) => {
     const name = file?.name || "";
@@ -21,18 +27,18 @@ const FileUploadCard: React.FC = () => {
       setFileName(null);
       setFileSize(null);
       setIsValid(false);
-      setIsAnalyzing(false);
       toast({
         title: "Invalid file type",
         description: "Please upload a PDF document (.pdf)",
         variant: "destructive",
       });
+      onFileChange?.(null, { isValid: false });
       return;
     }
     setFileName(name);
     setFileSize(file.size);
     setIsValid(true);
-    setIsAnalyzing(false);
+    onFileChange?.(file, { isValid: true, name, size: file.size });
   };
 
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -88,25 +94,6 @@ const FileUploadCard: React.FC = () => {
           <div className="flex items-center gap-3">
             <Button variant="hero" size="lg">
               <FileText /> Choose PDF
-            </Button>
-            <Button
-              size="lg"
-              variant="secondary"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!isValid) return;
-                setIsAnalyzing(true);
-              }}
-              disabled={!isValid || isAnalyzing}
-              aria-disabled={!isValid || isAnalyzing}
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="animate-spin" /> Analyzing...
-                </>
-              ) : (
-                <>Analyze</>
-              )}
             </Button>
             <input
               ref={inputRef}

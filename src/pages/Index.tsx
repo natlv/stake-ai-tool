@@ -1,7 +1,39 @@
+import React from "react";
 import StrategySelect from "@/components/StrategySelect";
 import FileUploadCard from "@/components/FileUploadCard";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { analyzePdf } from "@/services/analyze";
 
 const Index = () => {
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const [isValid, setIsValid] = React.useState(false);
+  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+
+  const handleFileChange = (
+    file: File | null,
+    meta: { isValid: boolean; name?: string; size?: number }
+  ) => {
+    setSelectedFile(file);
+    setIsValid(meta.isValid);
+  };
+
+  const handleAnalyze = async () => {
+    if (!selectedFile || !isValid) return;
+    setIsAnalyzing(true);
+    try {
+      const result = await analyzePdf(selectedFile);
+      console.log("Extracted result:", result);
+      toast({ title: "Analysis complete", description: "Dummy payload received." });
+      // TODO: navigate to results page with result
+    } catch (e) {
+      toast({ title: "Analysis failed", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   return (
     <main>
       <section className="container mx-auto min-h-screen px-6 py-16">
@@ -15,7 +47,25 @@ const Index = () => {
         </div>
 
         <div className="mx-auto max-w-3xl">
-          <FileUploadCard />
+          <FileUploadCard isAnalyzing={isAnalyzing} onFileChange={handleFileChange} />
+        </div>
+
+        <div className="mx-auto mt-6 max-w-3xl flex justify-center">
+          <Button
+            size="lg"
+            variant="hero"
+            onClick={handleAnalyze}
+            disabled={!isValid || !selectedFile || isAnalyzing}
+            aria-disabled={!isValid || !selectedFile || isAnalyzing}
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="animate-spin" /> Analyzing...
+              </>
+            ) : (
+              <>Analyze</>
+            )}
+          </Button>
         </div>
       </section>
     </main>
