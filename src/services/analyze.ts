@@ -7,7 +7,7 @@ function delay(ms: number) {
 
 function mockExtracted(): Extracted {
   return {
-    documentType: "10-K",
+    documentType: "Financial Report",
     stockName: "JP Morgan",
     highlights: [
       "Increasing dividend payout",
